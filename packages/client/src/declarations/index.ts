@@ -272,6 +272,7 @@ export type ICertificate = {
   corrector?: Partial<{ type: RelationForCertificateCorrection | string }>
   hasShowedVerifiedDocument?: boolean
   payments?: Payment
+  certificateTemplateId?: string
   templateConfig?: ICertificateConfigData
 }
 
