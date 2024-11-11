@@ -1,28 +1,59 @@
-# FIXME: Refactor to k8s cronjobs, this is essentially a cron wrapper
-apiVersion: apps/v1
-kind: Deployment
+# # FIXME: Refactor to k8s cronjobs, this is essentially a cron wrapper
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   labels:
+#     app: scheduler
+#   name: scheduler
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: scheduler
+#   template:
+#     metadata:
+#       labels:
+#         app: scheduler
+#     spec:
+#       containers:
+#         - name: scheduler
+#           image: "opencrvs/ocrvs-scheduler:{{ .Values.image.tag }}"
+#           env:
+#             - name: METRICS_URL
+#               value: {{ .Values.metricsUrl }}
+#             - name: NODE_ENV
+#               value: development
+#             - name: OPENHIM_MONGO_URL
+#               value: {{ .Values.mongoUrl }}/openhim-dev
+#       restartPolicy: Always
+
+
+#---------------------------------------------------------------------
+
+apiVersion: batch/v1
+kind: CronJob
 metadata:
   labels:
     app: scheduler
-  name: scheduler
+  name: scheduler-cron
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: scheduler
-  template:
-    metadata:
-      labels:
-        app: scheduler
+  schedule: "*/1 * * * *" # Adjust the schedule as needed (this example runs every hour)
+  jobTemplate:
     spec:
-      containers:
-        - name: scheduler
-          image: "opencrvs/ocrvs-scheduler:{{ .Values.image.tag }}"
-          env:
-            - name: METRICS_URL
-              value: {{ .Values.metricsUrl }}
-            - name: NODE_ENV
-              value: development
-            - name: OPENHIM_MONGO_URL
-              value: {{ .Values.mongoUrl }}/openhim-dev
-      restartPolicy: Always
+      template:
+        metadata:
+          labels:
+            app: scheduler
+        spec:
+          containers:
+            - name: scheduler
+              image: "opencrvs/ocrvs-scheduler:{{ .Values.image.tag }}"
+              env:
+                - name: METRICS_URL
+                  value: {{ .Values.metricsUrl }}
+                - name: NODE_ENV
+                  value: development
+                - name: OPENHIM_MONGO_URL
+                  value: {{ .Values.mongoUrl }}/openhim-dev
+          restartPolicy: OnFailure
+
